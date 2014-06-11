@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/app/hadoop/tmp</value>
+    <description>A base of temporary directories.</description>
+  </property>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://<%= @masterNode %>:9000</value>
+    <description>The name of the default file system. A URI whose scheme and authority determine the FileSystem implementation.</description>
+  </property>
+</configuration>

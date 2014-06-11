@@ -1,0 +1,13 @@
+class first {
+	file {'testfile':
+		path    => '/tmp/testfile',
+		ensure  => present,
+		mode    => 0640,
+		content => "I'm a test file by guopeng", 
+	}
+  
+  notify {"so that is it....":
+		require => File['testfile'],
+	}
+
+}
