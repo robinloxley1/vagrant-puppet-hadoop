@@ -27,4 +27,7 @@ then
   hadoop fs -chmod g+x /user/hive/warehouse
 fi
 
+#start-mapred.sh >/dev/null 2>&1
+#hive --service metastore &
+#hive --service hiveserver2 &
 #stop-dfs.sh >/dev/null 2>&1

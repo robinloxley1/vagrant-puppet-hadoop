@@ -16,8 +16,8 @@ class { 'hdfsRun':
 
 class repository {
   notice('enter repository')
-/*  
-  exec { 'apt-get-update':
+
+/*  exec { 'apt-get-update':
     command => 'apt-get update',
     path    => ['/bin','/usr/bin'],
   }
@@ -42,6 +42,7 @@ mysql::db { 'metastore_db':
   password  => 'hive',
   host      => 'localhost',
   grant     => ['ALL'],
+  charset   => 'latin1',
   /*require   => Class['hive@localhost']*/
 }
 
@@ -102,9 +103,8 @@ class hdfsRun {
     message => 'formatting dfs now',
   }
  
-  Exec['format hdfs'] -> Notify['formatting dfs'] 
-  
   if $hostname =~ /^master.*/ {
+    Exec['format hdfs'] -> Notify['formatting dfs'] 
     exec { 'format hdfs':
       user      => vagrant,
       command   => '/home/vagrant/hadoop/bin/hadoop namenode -format -force',
@@ -119,11 +119,12 @@ class hdfsRun {
     }
 
     exec { 'run init-hive-dfs.sh':
-      cwd     => '/tmp',
-      path    => '/usr/bin:/bin:/usr/sbin:/home/vagrant/hadoop/bin',
-      command => "bash -c 'source /home/vagrant5/.bashrc;. init-hive-dfs.sh'",
-      user    => vagrant,
-      require => [ Exec['format hdfs'], File['/tmp/init-hive-dfs.sh'] ],
+      cwd       => '/tmp',
+      path      => '/usr/bin:/bin:/usr/sbin:/home/vagrant/hadoop/bin',
+      command   => "bash -c 'source /home/vagrant5/.bashrc;. init-hive-dfs.sh'",
+      user      => vagrant,
+      require   => [ Exec['format hdfs'], File['/tmp/init-hive-dfs.sh'] ],
+      logoutput => true,
     }
     
 /*    exec { 'start-dfs.sh':

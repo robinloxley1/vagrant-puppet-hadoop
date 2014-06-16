@@ -20,26 +20,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		end
 	end
 
-#  config.vm.define :hadoop_slave1 do |hadoop_config|
-#    hadoop_config.vm.box = "Precise64"
-#		hadoop_config.vm.network :private_network, ip: "10.17.3.11"
-#		hadoop_config.vm.host_name = "slave1.gp.net"
-#		hadoop_config.vm.provider "virtualbox" do |vb|
-#			vb.customize ["modifyvm", :id, "--memory", "1024"]
-#		end
-#	end
-#
-#  config.vm.define :hadoop_slave2 do |hadoop_config|
-#    hadoop_config.vm.box = "Precise64"
-#		hadoop_config.vm.network :private_network, ip: "10.17.3.12"
-#		hadoop_config.vm.host_name = "slave2.gp.net"
-#		hadoop_config.vm.provider "virtualbox" do |vb|
-#			vb.customize ["modifyvm", :id, "--memory", "1024"]
-#		end
-#	end
+  config.vm.define :hadoop_slave1 do |hadoop_config|
+    hadoop_config.vm.box = "Precise64"
+		hadoop_config.vm.network :private_network, ip: "10.17.3.11"
+		hadoop_config.vm.host_name = "slave1.gp.net"
+		hadoop_config.vm.provider "virtualbox" do |vb|
+			vb.customize ["modifyvm", :id, "--memory", "1024"]
+		end
+	end
+
+  config.vm.define :hadoop_slave2 do |hadoop_config|
+    hadoop_config.vm.box = "Precise64"
+		hadoop_config.vm.network :private_network, ip: "10.17.3.12"
+		hadoop_config.vm.host_name = "slave2.gp.net"
+		hadoop_config.vm.provider "virtualbox" do |vb|
+			vb.customize ["modifyvm", :id, "--memory", "1024"]
+		end
+	end
 
 	config.vm.provision :puppet do |puppet|
-		puppet.module_path = ["modules","~/.puppet/modules"]
+		puppet.module_path = ["modules", "/Users/leo/.puppet/modules"]
 		puppet.manifests_path = "manifests"
 		puppet.manifest_file = "hadoop.pp"
  #   puppet.options = "--verbose --debug"
