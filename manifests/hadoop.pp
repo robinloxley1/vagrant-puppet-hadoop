@@ -16,26 +16,22 @@ class { 'hdfsRun':
 
 class repository {
   notice('enter repository')
-
 /*  exec { 'apt-get-update':
-    command => 'apt-get update',
-    path    => ['/bin','/usr/bin'],
+    command   => 'apt-get update',
+    path      => ['/bin','/usr/bin'],
+    timeout   => 0,
+    logoutput  => true,
   }
 */
 }
 
 class { 'mysql::server':
-  root_password => 'password',
-  service_enabled => true,
-  require         => Class['repository']
+  root_password     => 'password',
+  service_enabled   => true,
+  override_options  => {'mysqld' => { 'bind_address' => '0.0.0.0' } },
+  require           => Class['repository']
 }
-/*
-mysql_user { 'hive@localhost':
-  ensure        => present,
-  password_hash => mysql_password('hive'),
-  require       => Class['mysql::server']
-}
-*/
+
 mysql::db { 'metastore_db':
   ensure    => present,
   user      => 'hive',
@@ -43,18 +39,16 @@ mysql::db { 'metastore_db':
   host      => 'localhost',
   grant     => ['ALL'],
   charset   => 'latin1',
-  /*require   => Class['hive@localhost']*/
+  collate   => 'latin1_bin',
 }
 
-/*mysql_grant { 'hive@localhost/metastore_db.*':
+mysql_grant { 'root@%/*.*':
   ensure      => present,
   options     => ['GRANT'],
-  user        => 'hive@localhost',
-  table       => 'metastore_db.*',
   privileges  => ['ALL'],
-  require     => Class['mysql:db']
+  table       => '*.*',
+  user        => 'root@%',
 }
-*/
 
 class { 'hadoop' :
   masterNode	=> '10.17.3.10',
@@ -111,55 +105,37 @@ class hdfsRun {
       onlyif    => '/usr/bin/test ! -d /app/hadoop/tmp/dfs',
     }
 
-    file { '/tmp/init-hive-dfs.sh':
+    file { '/home/vagrant/init-hive-dfs.sh':
       source  => "puppet:///modules/hive/init-hive-dfs.sh",
       owner   =>  vagrant,
       mode    =>  755,
       ensure  => present,
     }
 
+    file { '/home/vagrant/init-db.sql':
+      source  => "puppet:///modules/hive/init-db.sql",
+      owner   =>  vagrant,
+      mode    =>  755,
+      ensure  => present,  
+    }
+
+    file { '/home/vagrant/weekday_mapper.py':
+      source  => "puppet:///modules/hive/weekday_mapper.py",
+      owner   =>  vagrant,
+      mode    =>  755,
+      ensure  => present,
+    }
+
+/*
     exec { 'run init-hive-dfs.sh':
-      cwd       => '/tmp',
+      cwd       => '/home/vagrant',
       path      => '/usr/bin:/bin:/usr/sbin:/home/vagrant/hadoop/bin',
       command   => "bash -c 'source /home/vagrant5/.bashrc;. init-hive-dfs.sh'",
       user      => vagrant,
-      require   => [ Exec['format hdfs'], File['/tmp/init-hive-dfs.sh'] ],
+      require   => [ Exec['format hdfs'], File['/home/vagrant/init-hive-dfs.sh'] ],
       logoutput => true,
     }
-    
-/*    exec { 'start-dfs.sh':
-      user      => vagrant,
-      command   => '/home/vagrant/hadoop/bin/start-dfs.sh',
-      require   => Exec['format hdfs'],
-    }
-    
-    exec { 'mkdir dfs /tmp':
-      user      => vagrant,
-      command   => '/home/vagrant/hadoop/bin/hadoop fs -mkdir /tmp',
-      onlyif    => '/home/vagrant/hadoop/bin/hadoop dfs -test -d /tmp 2>&1 | grep -q "does not exist"',
-      require   => Exec['start-dfs.sh'],
-    }
-    
-    exec { 'mkdir dfs /user/hive/warehouse':
-      user      => vagrant,
-      command   => '/home/vagrant/hadoop/bin/hadoop fs -mkdir /user/hive/warehouse',
-      unless    => '/home/vagrant/hadoop/bin/hadoop fs -test -d /user/hive/warehouse',
-      require   => Exec['start-dfs.sh'],
-    }
-
-    exec { 'grant dfs /tmp':
-      user      => vagrant,
-      command   => '/home/vagrant/hadoop/bin/hadoop fs -chmod g+w /tmp',
-      require   => Exec['mkdir dfs /tmp'],
-    }
-    
-    exec { 'grant dfs /user/hive/warehouse':
-      user      => vagrant,
-      command   => '/home/vagrant/hadoop/bin/hadoop fs -chmod g+w /user/hive/warehouse',
-      require   => Exec['mkdir dfs /user/hive/warehouse'],
-    }
 */
-
   }   
 }
 
